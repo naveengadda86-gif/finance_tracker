@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finance Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f0f;
+      --surface:   #181818;
+      --surface2:  #222222;
+      --border:    #2e2e2e;
+      --ink:       #efefef;
+      --muted:     #777;
+      --green:     #4ade80;
+      --green-dim: #16532d;
+      --red:       #f87171;
+      --red-dim:   #450a0a;
+      --radius:    8px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BRAND */
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .brand .logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--green);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .brand .tagline {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* TABS */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 14px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .tab:first-child { border-right: 1px solid var(--border); }
+    .tab.active {
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.05);
+    }
+
+    /* FORM */
+    .form-wrap { padding: 28px; }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .msg.success { background: var(--green-dim); color: var(--green); border: 1px solid #166534; display: block; }
+    .msg.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid #7f1d1d; display: block; }
+
+    .panel { display: none; flex-direction: column; gap: 14px; }
+    .panel.active { display: flex; }
+
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.08);
+    }
+    input::placeholder { color: #444; }
+
+    .btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--green);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn:hover   { opacity: 0.88; }
+    .btn:active  { transform: scale(0.98); }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="brand">
+    <div class="logo">◈ FinTrack</div>
+    <div class="tagline">personal finance manager</div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Login</button>
+      <button class="tab"        onclick="switchTab('register')">Register</button>
+    </div>
+
+    <div class="form-wrap">
+
+      <!-- LOGIN -->
+      <div id="loginMsg" class="msg"></div>
+      <div class="panel active" id="loginPanel">
+        <div class="field">
+          <label>Username</label>
+          <input id="loginUsername" type="text" placeholder="your username" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" />
+        </div>
+        <button class="btn" onclick="login()">Login</button>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="registerMsg" class="msg"></div>
+      <div class="panel" id="registerPanel">
+        <div class="field">
+          <label>Username</label>
+          <input id="regUsername" type="text" placeholder="choose a username" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input id="regEmail" type="email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="regPassword" type="password" placeholder="••••••••" />
+        </div>
+        <button class="btn" onclick="register()">Create Account</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:5000';
+
+  // If already logged in, go straight to dashboard
+  if (localStorage.getItem('token')) {
+    window.location.href = 'dashboard.html';
+  }
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.querySelectorAll('.tab').forEach((b, i) =>
+      b.classList.toggle('active', isLogin ? i === 0 : i === 1)
+    );
+    document.getElementById('loginPanel').classList.toggle('active', isLogin);
+    document.getElementById('registerPanel').classList.toggle('active', !isLogin);
+    document.getElementById('loginMsg').className = 'msg';
+    document.getElementById('registerMsg').className = 'msg';
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + type;
+  }
+
+  async function login() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+
+    if (!username || !password) {
+      return showMsg('loginMsg', 'Please fill in all fields.', 'error');
+    }
+
+    try {
+      const res  = await fetch(API + '/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        window.location.href = 'dashboard.html';
+      } else {
+        showMsg('loginMsg', data.message, 'error');
+      }
+    } catch (err) {
+      showMsg('loginMsg', 'Cannot reach server. Is Flask running on port 5000?', 'error');
+    }
+  }
+
+  async function register() {
+    const username = document.getElementById('regUsername').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+
+    if (!username || !email || !password) {
+      return showMsg('registerMsg', 'Please fill in all fields.', 'error');
+    }
+
+    try {
+      const res  = await fetch(API + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showMsg('registerMsg', 'Account created! You can now login.', 'success');
+        // clear fields
+        document.getElementById('regUsername').value = '';
+        document.getElementById('regEmail').value    = '';
+        document.getElementById('regPassword').value = '';
+      } else {
+        showMsg('registerMsg', data.message, 'error');
+      }
+    } catch (err) {
+      showMsg('registerMsg', 'Cannot reach server. Is Flask running on port 5000?', 'error');
+    }
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('loginPanel').classList.contains('active')) login();
+    else register();
+  });
+</script>
+
+</body>
+</html>
