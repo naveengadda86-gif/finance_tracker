@@ -414,11 +414,11 @@
 </div>
 
 <script>
-  const API = 'http://localhost:5000';
+  const API = 'https://finance-tracker-1-ldfq.onrender.com/';
 
   // ── AUTH CHECK ────────────────────────────────────────────
   const token = localStorage.getItem('token');
-  if (!token) window.location.href = 'index.html';
+  if (!token) window.location.href = 'index';
 
   function authHeaders() {
     return {
@@ -638,7 +638,7 @@
   // ── LOGOUT ────────────────────────────────────────────────
   function logout() {
     localStorage.removeItem('token');
-    window.location.href = 'index.html';
+    window.location.href = 'index';
   }
 
   // ── HELPERS ───────────────────────────────────────────────

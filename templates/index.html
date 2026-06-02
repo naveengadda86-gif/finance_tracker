@@ -223,11 +223,11 @@
 </div>
 
 <script>
-  const API = 'http://localhost:5000';
+  const API = 'https://finance-tracker-1-ldfq.onrender.com/';
 
   // If already logged in, go straight to dashboard
   if (localStorage.getItem('token')) {
-    window.location.href = 'dashboard.html';
+    window.location.href = 'dashboard';
   }
 
   function switchTab(tab) {
@@ -265,7 +265,7 @@
 
       if (res.ok) {
         localStorage.setItem('token', data.token);
-        window.location.href = 'dashboard.html';
+        window.location.href = 'dashboard';
       } else {
         showMsg('loginMsg', data.message, 'error');
       }
